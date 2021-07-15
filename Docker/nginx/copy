@@ -1,0 +1,9 @@
+#! /bin/bash
+
+containerName="affectionate_cannon"
+
+docker cp $(pwd)/docker.conf affectionate_cannon:/etc/nginx/conf.d
+docker cp $(pwd)/ssl.crt affectionate_cannon:/etc/nginx/conf.d
+docker cp $(pwd)/ssl.key affectionate_cannon:/etc/nginx/conf.d
+docker exec $containerName nginx -t
+docker exec $containerName nginx -s reload
