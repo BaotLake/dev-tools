@@ -1,0 +1,5 @@
+#! /bin/bash
+
+./copy
+
+curl http://localhost:3001/a.html

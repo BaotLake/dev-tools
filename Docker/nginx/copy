@@ -2,6 +2,12 @@
 
 containerName="affectionate_cannon"
 
+running=$(docker container ls | grep $containerName)
+if [ "$running" = "" ]; then
+  echo "docker start $containerName"
+  docker start $containerName
+fi
+
 docker cp $(pwd)/docker.conf affectionate_cannon:/etc/nginx/conf.d
 docker cp $(pwd)/ssl.crt affectionate_cannon:/etc/nginx/conf.d
 docker cp $(pwd)/ssl.key affectionate_cannon:/etc/nginx/conf.d

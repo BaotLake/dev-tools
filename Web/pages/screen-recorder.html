@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Recorder</title>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <div>
+        <video
+                width="600"
+                height="400"
+                v-bind:src="url"
+                controls
+        ></video>
+    </div>
+    <div>
+        <button v-on:click="startRecord">start</button>
+        <button v-on:click="stopRecord">stop</button>
+        <button v-on:click="setSlice">
+            {{ slice ? "分片" : "不分片" }}
+        </button>
+        <button v-on:click="download">下载</button>
+        <button v-on:click="play">play</button>
+    </div>
+</div>
+<script>
+    let mediaRecorder
+    let stream
+    let videoData = []
+    let lastInvalid = false
+    const app = new Vue({
+        el: '#app',
+        data: {
+            slice: false,
+            url: '',
+        },
+        methods: {
+            startRecord: async function () {
+                console.log('start')
+                stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: true,
+                    audio: true,
+                })
+                mediaRecorder = new MediaRecorder(stream)
+                videoData = []
+                mediaRecorder.ondataavailable = (event) => {
+                    if (lastInvalid === true) {
+                        lastInvalid = false
+                        console.log(
+                            '❎🚫 ondataavailable: ',
+                            event.data,
+                            event
+                        )
+                        return
+                    }
+                    if (event.data.size === 0) {
+                        console.log(
+                            '❌ ondataavailable: ',
+                            event.data,
+                            event
+                        )
+                        lastInvalid = true
+                        return
+                    }
+                    console.log(
+                        '✅ ondataavailable: ',
+                        event.data,
+                        event
+                    )
+                    videoData.push(event.data)
+                }
+                if (this.slice) {
+                    mediaRecorder.start(1000)
+                } else {
+                    mediaRecorder.start()
+                }
+            },
+            stopRecord: async function () {
+                console.log('stop')
+                mediaRecorder.stop()
+                this.stopStream(stream)
+            },
+            setSlice: function () {
+                console.log('set slice', !this.slice)
+                this.slice = !this.slice
+            },
+
+            download: function () {
+                console.log('download')
+                this.play()
+                let a = document.createElement('a')
+                a.href = this.url
+                a.download = `Record-${Date.now()}.mp4`
+                a.click()
+            },
+
+            play: function () {
+                let blob = new Blob(videoData, { type: 'video/mp4' })
+                videoData = []
+                let url = URL.createObjectURL(blob)
+                this.url = url
+            },
+
+            stopStream: async function (stream) {
+                if (!stream) return
+                stream.getTracks().forEach((track) => {
+                    track.stop()
+                })
+            },
+        },
+    })
+</script>
+</body>
+</html>

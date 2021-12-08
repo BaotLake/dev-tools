@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Recorder</title>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <div>
+        <video
+                width="600"
+                height="400"
+                v-bind:src="url"
+                controls
+                loop
+                ref="sourceVideo"
+        ></video>
+    </div>
+    <div>
+        <div>
+            duration:
+            <input type="number" v-model="duration" />
+        </div>
+        <div>
+            <button v-on:click="getStream">getStream</button>
+            <button v-on:click="startTest">开始测试</button>
+        </div>
+        <table>
+            <tbody>
+            <tr>
+                <th>timeSlice</th>
+                <th>slice</th>
+                <th>0size</th>
+                <th>duration</th>
+            </tr>
+            <template v-for="item in table">
+                <tr :class="'t' + item[0]">
+                    <td>{{ item[0] }}</td>
+                    <td>{{ item[1] }}</td>
+                    <td>{{ item[2] }}</td>
+                    <td>{{ item[3] }}</td>
+                </tr>
+            </template>
+            </tbody>
+        </table>
+    </div>
+</div>
+<style>
+    table {
+        border-spacing: 1px;
+        border-collapse: separate;
+        /* border: 1px solid black; */
+        background-color: black;
+    }
+    table th,
+    td {
+        background-color: white;
+        padding: 5px;
+    }
+    .t100 > td {
+        background-color: whitesmoke;
+    }
+    .t500 > td {
+        background-color: aliceblue;
+    }
+    .t1000 > td {
+        background-color: seashell;
+    }
+    .t2500 > td {
+        background-color: powderblue;
+    }
+    .t5000 > td {
+        background-color: beige;
+    }
+</style>
+<script>
+    let mediaRecorder
+    let stream
+    let itemData = {
+        timeSlice: 0,
+        size0Count: 0,
+        sliceCount: 0,
+        startTime: 0,
+        endTime: 0,
+    }
+    const app = new Vue({
+        el: '#app',
+        data: {
+            duration: 1000 * 5,
+            url: '',
+
+            table: [
+                // timeSlice, size0Count, sliceCount, duration
+                // [0, 0, 0, 0],
+            ],
+        },
+        methods: {
+            startRecord: async function (timeSlice) {
+                mediaRecorder = new MediaRecorder(stream)
+
+                itemData = {
+                    timeSlice: timeSlice,
+                    size0Count: 0,
+                    sliceCount: 0,
+                    startTime: Date.now(),
+                    endTime: 0,
+                }
+                mediaRecorder.ondataavailable = (event) => {
+                    itemData.sliceCount += 1
+
+                    if (event.data.size === 0) {
+                        console.log(
+                            '❌ ondataavailable: ',
+                            event.data,
+                            event
+                        )
+                        itemData.size0Count += 1
+                    }
+                }
+
+                mediaRecorder.start(timeSlice)
+            },
+            stopRecord: async function () {
+                console.log('stop')
+                mediaRecorder.stop()
+                itemData.endTime = Date.now()
+            },
+
+            stopStream: async function (stream) {
+                if (!stream) return
+                stream.getTracks().forEach((track) => {
+                    track.stop()
+                })
+            },
+
+            getStream: async function (type) {
+                type = 'display'
+                switch (type) {
+                    case 'display':
+                        stream =
+                            await navigator.mediaDevices.getDisplayMedia(
+                                {
+                                    video: true,
+                                    audio: true,
+                                }
+                            )
+                        break
+                    case 'camera':
+                        stream =
+                            await navigator.mediaDevices.getUserMedia({
+                                video: true,
+                                audio: true,
+                            })
+                        break
+                    case 'video':
+                        // stream = a
+                        break
+                }
+            },
+
+            startTest: async function () {
+                console.log('start test')
+                let timeSlice = [
+                    100, 300, 500, 800, 1000, 1500, 2500, 3000, 5000,
+                    10000,
+                ]
+                for (t of timeSlice) {
+                    console.log('timeSlice: ', t)
+                    for (let i = 0; i < 5; i++) {
+                        console.log('i : ', i)
+                        this.startRecord(t)
+                        await new Promise((resolve) => {
+                            setTimeout(() => {
+                                resolve()
+                            }, parseInt(this.duration))
+                        })
+                        this.stopRecord()
+
+                        await new Promise((resolve) => {
+                            setTimeout(() => {
+                                resolve()
+                            }, 500)
+                        })
+
+                        let item = [
+                            itemData.timeSlice,
+                            itemData.sliceCount,
+                            itemData.size0Count,
+                            itemData.endTime - itemData.startTime,
+                        ]
+                        this.table = [...this.table, item]
+                    }
+                }
+
+                this.stopStream()
+            },
+        },
+    })
+</script>
+</body>
+</html>
