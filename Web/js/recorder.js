@@ -12,7 +12,12 @@ async function getStream() {
 async function record(second = 3) {
     const chunks = []
     const stream = window._js_stream
-    const recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9'})
+    const options = { mimeType: 'video/webm; codecs=vp9'}
+    // const options = { 
+    //     mimeType: 'video/webm; codecs=h264',
+    //     videoBitsPerSecond: 8000000,
+    // }
+    const recorder = new MediaRecorder(stream, options)
     recorder.start()
     recorder.ondataavailable = (e) => {
         chunks.push(e.data)
@@ -21,5 +26,16 @@ async function record(second = 3) {
     window._js_chunks = chunks
     setTimeout(()=>{
         recorder.stop()
+        console.log('record done')
     }, second * 1000)
+}
+
+function downloadVideo(file='a.mp4') {
+    const chunks = window._js_chunks
+    const blob = new Blob(chunks)
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = file
+    a.click()
 }
