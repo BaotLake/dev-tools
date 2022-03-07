@@ -1,7 +1,7 @@
 /**
  * 获取视频流
  * 4K 显示器： 3840*2160
- * MacBook Pro 显示器： 2880*1800
+ * MacBook Pro 显示器： 2560*1600
  *
  */
 
@@ -13,17 +13,19 @@ const config = {
 
     exact: {
         video: {
-            width: { exact: 3840 },
-            height: { exact: 2160 },
+            width: { exact: 2560 },
+            height: { exact: 1600 },
         },
     },
 
     ideal: {
         video: {
-            width: { ideal: 3840 },
-            height: { ideal: 2160 },
+            width: { ideal: 2560 },
+            height: { ideal: 1600 },
         },
     },
+
+    min
 }
 
 async function test(name = 'default') {
@@ -34,8 +36,8 @@ async function test(name = 'default') {
     console.log(capabilities)
 }
 
-// test('ideal')
+test('ideal')
 
-window.addEventListener('click', () => {
-    test('default')
-})
+// window.addEventListener('click', () => {
+//     test('default')
+// })
