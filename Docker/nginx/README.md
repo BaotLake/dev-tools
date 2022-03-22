@@ -4,5 +4,6 @@
 
 `反向代理`本地目标端口的http服务
 
-`ssl.crt`和`ssl.key`是自签名的ssl证书，Chrome提示"Your connection is not private"时键入"thisisunsafe"即可打开页面。
+`ssl.crt`和`ssl.key`是自签名的ssl证书
+Chrome提示"Your connection is not private"时键入"thisisunsafe"即可打开页面。
 

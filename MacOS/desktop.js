@@ -1,3 +1,5 @@
+// osascript desktop.js
+
 app = Application.currentApplication()
 app.includeStandardAdditions = true
 value = app.doShellScript("defaults read com.apple.finder CreateDesktop")
