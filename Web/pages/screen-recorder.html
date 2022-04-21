@@ -46,7 +46,7 @@
                     video: true,
                     audio: true,
                 })
-                mediaRecorder = new MediaRecorder(stream)
+                mediaRecorder = new MediaRecorder(stream, { })
                 videoData = []
                 mediaRecorder.ondataavailable = (event) => {
                     if (lastInvalid === true) {

@@ -9,10 +9,20 @@ async function getStream() {
     return stream
 }
 
+async function applyConstraints() {
+    const stream = window._js_stream
+    stream.getVideoTracks().forEach((t) => {
+        t.applyConstraints({
+            width: { max: 480 },
+            height: { max: 360 },
+        }).then(console.log)
+    })
+}
+
 async function record(second = 3) {
     const chunks = []
     const stream = window._js_stream
-    const options = { mimeType: 'video/webm; codecs=vp9'}
+    const options = { mimeType: 'video/webm; codecs=vp9' }
     // const options = { 
     //     mimeType: 'video/webm; codecs=h264',
     //     videoBitsPerSecond: 8000000,
@@ -24,13 +34,13 @@ async function record(second = 3) {
     }
 
     window._js_chunks = chunks
-    setTimeout(()=>{
+    setTimeout(() => {
         recorder.stop()
         console.log('record done')
     }, second * 1000)
 }
 
-function downloadVideo(file='a.mp4') {
+function downloadVideo(file = 'a.mp4') {
     const chunks = window._js_chunks
     const blob = new Blob(chunks)
     const url = URL.createObjectURL(blob)

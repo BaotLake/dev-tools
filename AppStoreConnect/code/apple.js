@@ -330,11 +330,12 @@ async function start() {
         // }
         // await inputPromotionalText(promotionalText)
 
-        const descriptionText = window.DESCRIPTION_DICT[valueCode]
-        await inputDescription(descriptionText)
+        // const descriptionText = window.DESCRIPTION_DICT[valueCode]
+        // await inputDescription(descriptionText)
 
-        // let keywordsText = window.AS_IOS_DICT[valueCode].keywords
-        // await inputKeywords(keywordsText)
+        let keywordsText = window.AS_IOS_DICT[valueCode][0]
+        if(keywordsText.length > 100) keywordsText = window.AS_IOS_DICT[valueCode][1]
+        await inputKeywords(keywordsText)
 
         // let whatsNewText = window.AS_IOS_DICT[valueCode].whatsnew
         // await inputWhatsNew(whatsNewText)

@@ -7,4 +7,5 @@ Vim
 .DS_Store
 .idea
 
-AppStoreConnect/data
+AppStoreConnect/data/*
+playground
